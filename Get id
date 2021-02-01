@@ -1,0 +1,16 @@
+--Attack the creature，disaplay the id of the creature
+local function Player_AttackHit(e)
+    print(e.toobjid)
+    local result,actorid=Creature:getActorID(e.toobjid)
+    print(actorid)
+    Chat:sendSystemMsg(actorid)
+end
+ScriptSupportEvent:registerEvent([=[Player.AttackHit]=],Player_AttackHit)
+
+--do the emotion, show the props id.(use to get the egg id)
+local function Playe(e)
+r,id=Player:getCurToolID(e.eventobjid)
+    Chat:sendSystemMsg(id)
+    print(id)
+end
+ScriptSupportEvent:registerEvent([=[Player.PlayAction]=],Playe)
