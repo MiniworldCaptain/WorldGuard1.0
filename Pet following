@@ -1,0 +1,73 @@
+
+--the first thing is to get the summon props id and pets/babies id
+local petEgg1 = 4098  --the prop id used to summon the pets/babies
+local pet1 = 2 -- pet1 id
+
+local petpigEgg = 13402
+local petpig = 3402
+
+local pets={[4098]=2,[13402]=3402}
+
+--use to save all the pet
+local ps={}
+
+local function f(e)
+    local userID = e.eventobjid
+    local result,value=Player:getTeam(userID) --get the team of the player who summon the pet
+    local r,x,y,z=Actor:getPosition(userID)
+    --summon littleStar pet
+    if (pets[e.itemid] ~= nil) then 
+        local r2,id=World:spawnCreature(x+1,y,z,pets[e.itemid],1)  --spawn the pet and belongs to the owner team
+        Creature:setTeam(id[1],value)
+        if ps[userID] == nil then
+            ps[userID] = {id[1]}
+        else
+            local number = #ps[userID]
+            if (number < 5) then 
+                ps[userID][#ps[userID]+1] = id[1]
+            else
+                World:despawnCreature(ps[userID][1])
+                ps[userID][1] = id[1]
+            end
+        end
+    else
+    
+    end   
+        
+    
+end
+ScriptSupportEvent:registerEvent([=[Player.ConsumeItem]=],f)
+
+--follow the players
+local function run(e)
+ if e.second%3==0 then  --every 3 seconds
+  local i,as,j=0,{},0
+  for i,as in pairs(ps) do
+   local r,x,y,z=Player:getPosition(i)
+   for j=1,#as do 
+       local r2,x2,y2,z2 = Actor:getPosition(as[j])
+       local distant = math.pow(z-z2, 2)+math.pow(x-x2, 2)
+       if(distant>=25) then Actor:tryMoveToPos(as[j],x,y,z,3)
+        else end
+       
+   end
+  end
+ end
+end
+ScriptSupportEvent:registerEvent('Game.RunTime',run)
+
+--when the pets is 5 blocks far away from the ownner, then move to the owner
+local function run(e)
+ if e.second%5==0 then
+  local i,as,j=0,{},0
+  for i,as in pairs(ps) do
+   local r,x,y,z=Player:getPosition(i)
+   for j=1,#as do
+       --local r2,x2,y2,z2 = Vector:getPosition(as[j])
+       --local distant = math.sqrt(math.pow((z2-z),2)+math.pow((x2-x),2))
+       --Chat:sendSystemMsg(distant)
+       Actor:tryMoveToPos(as[j],x,y,z,3)
+   end
+  end
+ end
+end
